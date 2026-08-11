@@ -1,0 +1,1982 @@
+{
+  "name": "AI Customer Support & Ticket Resolution System",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "e8cdc9e0-a36b-44a6-8b4c-11ad66eecdb9",
+      "name": "Customer Support",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "7fKllvlXd4YeeeoO",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "03baa8dc-1310-4c40-b787-86854977f7e3",
+              "name": "customer_email",
+              "value": "={{ $json.From.match(/<(.+?)>/)?.[1] }}",
+              "type": "string"
+            },
+            {
+              "id": "b3f38f86-ae3d-452c-8343-897ceff4a52d",
+              "name": "customer_name ",
+              "value": "={{ $json.From.split('<')[0].trim() }}",
+              "type": "string"
+            },
+            {
+              "id": "5205a9a3-8544-44c9-82ee-a5a1d8d7b249",
+              "name": "subject",
+              "value": "={{ $json.Subject }}",
+              "type": "string"
+            },
+            {
+              "id": "9d9984a1-8937-4f13-9d0d-1e27500353f6",
+              "name": "issue",
+              "value": "={{ $json.snippet.replace(/^.*?to\\s+\\S+@\\S+\\s+/i, '').trim() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        176,
+        0
+      ],
+      "id": "5c56b974-9c97-409a-89f1-28cc344d8c4e",
+      "name": "Extract Customer Data"
+    },
+    {
+      "parameters": {
+        "jsCode": "const now = new Date();\n\nconst ticketId =\n  `TKT-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;\n\nreturn [{\n  json: {\n    ...$json,\n    ticket_id: ticketId,\n    created_at: now.toISOString(),\n    status: \"Open\",\n    manager_notified: \"No\"\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        352,
+        0
+      ],
+      "id": "bd9e8341-535c-4726-9f1b-3325e6704a70",
+      "name": "Generate Ticket ID"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1wY2OiF1HxsryG98634-rmV5aYapA7mZoo9O8Cq5ACLs",
+          "mode": "list",
+          "cachedResultName": "AI Customer Support Tickets",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1wY2OiF1HxsryG98634-rmV5aYapA7mZoo9O8Cq5ACLs/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1wY2OiF1HxsryG98634-rmV5aYapA7mZoo9O8Cq5ACLs/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Ticket_ID": "={{ $json.ticket_id }}",
+            "Created_At": "={{ $json.created_at }}",
+            "Customer_Name": "={{ $json['customer_name '] }}",
+            "Customer_Email": "={{ $json.customer_email }}",
+            "Subject": "={{ $json.subject }}",
+            "Issue": "={{ $json.issue }}",
+            "Manager_Notified": "={{ $json.manager_notified }}",
+            "Status": "={{ $json.status }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Ticket_ID",
+              "displayName": "Ticket_ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Created_At",
+              "displayName": "Created_At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer_Name",
+              "displayName": "Customer_Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer_Email",
+              "displayName": "Customer_Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Subject",
+              "displayName": "Subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Issue",
+              "displayName": "Issue",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Sentiment",
+              "displayName": "Sentiment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "confidence",
+              "displayName": "confidence",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Priority",
+              "displayName": "Priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Assigned_Team",
+              "displayName": "Assigned_Team",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Team_Email",
+              "displayName": "Team_Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Manager_Notified",
+              "displayName": "Manager_Notified",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Updated_At",
+              "displayName": "Updated_At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        528,
+        0
+      ],
+      "id": "2e8915ee-f142-4487-abda-ae6d56c2ff89",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "o10OGF3i2mV3urzQ",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an AI customer support ticket classifier.\n\nAnalyze the customer support ticket provided below.\n\nReturn the following information:\n\n1. Category\n2. Summary\n3. Sentiment\n4. Confidence\n5. Priority\n\nCategory must be exactly one of:\n- Technical\n- Billing\n- General\n\nSentiment must be exactly one of:\n- Positive\n- Neutral\n- Negative\n\nPriority must be exactly one of:\n- Normal\n- Urgent\n\nPriority rules:\n- Urgent: Critical issue, security issue, account compromise, payment failure affecting business operations, or complete service outage.\n- Normal: Customer cannot access their account, important feature is not working, or issue is significantly affecting the customer.\nConfidence must be a number between 0 and 1.\n\nCustomer Support Ticket:\n\nCustomer Name: {{ $json.Customer_Name }}\n\nCustomer Email: {{ $('Extract Customer Data').item.json.customer_email }}\n\nSubject: {{ $('Extract Customer Data').item.json.subject }}\n\nIssue:\n{{ $('Extract Customer Data').item.json.issue }}\nReturn the result using the required structured output format.\nDo not return Markdown.\nDo not include explanations outside the required fields.\nConfidence must be a decimal number between 0 and 1.",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        704,
+        0
+      ],
+      "id": "f113b86e-c014-4f52-aafb-b66d2aaf0269",
+      "name": "AI Ticket Analysis",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "model": "llama-3.1-8b-instant",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        704,
+        160
+      ],
+      "id": "1bda6702-f554-435f-b913-988a7702145e",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "A434aarOdeb4O3nU",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"category\": {\n      \"type\": \"string\",\n      \"enum\": [\n        \"Billing\",\n        \"Technical\",\n        \"General\"\n      ]\n    },\n    \"summary\": {\n      \"type\": \"string\"\n    },\n    \"sentiment\": {\n      \"type\": \"string\",\n      \"enum\": [\n        \"Positive\",\n        \"Neutral\",\n        \"Negative\"\n      ]\n    },\n    \"confidence\": {\n      \"type\": \"number\"\n    },\n    \"priority\": {\n      \"type\": \"string\",\n      \"enum\": [\n        \"Urgent\",\n        \"Normal\"\n      ]\n    }\n  },\n  \"required\": [\n    \"category\",\n    \"summary\",\n    \"sentiment\",\n    \"confidence\",\n    \"priority\"\n  ]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        848,
+        160
+      ],
+      "id": "1f51406c-d369-40c5-8b4d-06ad11b9dbd5",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1wY2OiF1HxsryG98634-rmV5aYapA7mZoo9O8Cq5ACLs",
+          "mode": "list",
+          "cachedResultName": "AI Customer Support Tickets",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1wY2OiF1HxsryG98634-rmV5aYapA7mZoo9O8Cq5ACLs/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1wY2OiF1HxsryG98634-rmV5aYapA7mZoo9O8Cq5ACLs/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Ticket_ID": "={{ $('Generate Ticket ID').item.json.ticket_id }}",
+            "Category": "={{ $json.output.category }}",
+            "Summary": "={{ $json.output.summary }}",
+            "Sentiment": "={{ $json.output.sentiment }}",
+            "confidence": "={{ $json.output.confidence }}",
+            "Priority": "={{ $json.output.priority }}",
+            "Updated_At": "={{ $now.format('yyyy-MM-dd') }}"
+          },
+          "matchingColumns": [
+            "Ticket_ID"
+          ],
+          "schema": [
+            {
+              "id": "Ticket_ID",
+              "displayName": "Ticket_ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Created_At",
+              "displayName": "Created_At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer_Name",
+              "displayName": "Customer_Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer_Email",
+              "displayName": "Customer_Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Subject",
+              "displayName": "Subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Issue",
+              "displayName": "Issue",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Sentiment",
+              "displayName": "Sentiment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "confidence",
+              "displayName": "confidence",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Priority",
+              "displayName": "Priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Assigned_Team",
+              "displayName": "Assigned_Team",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Team_Email",
+              "displayName": "Team_Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Manager_Notified",
+              "displayName": "Manager_Notified",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Updated_At",
+              "displayName": "Updated_At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1008,
+        0
+      ],
+      "id": "ef7e58ed-eae2-4dac-bdaa-8197d9615867",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "o10OGF3i2mV3urzQ",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.Category }}",
+                    "rightValue": "Technical",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "1481ea8d-5e04-4605-9e1e-e0e61a863563"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Technical "
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "5484a51b-c1db-4e09-bc9c-e7cbcc523419",
+                    "leftValue": "={{ $json.Category }}",
+                    "rightValue": "Billing",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Billing"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "bf7eca0a-4d87-4c26-a1d6-59ec1fad3284",
+                    "leftValue": "={{ $json.Category }}",
+                    "rightValue": "General",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "General"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        1168,
+        -16
+      ],
+      "id": "1b905348-7793-4739-bcc7-72f92b7d79c1",
+      "name": "Route Ticket by Category"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "12ccfbee-038b-4a16-ab39-14c0d39cebbd",
+              "name": "Assigned_Team",
+              "value": "Technical Support",
+              "type": "string"
+            },
+            {
+              "id": "cf0e52a4-df02-4052-984d-b1d88ffae1cc",
+              "name": "Team_Email",
+              "value": "tech-support@company.com",
+              "type": "string"
+            },
+            {
+              "id": "fb064e3f-0983-4ba2-9257-ea7de05764c8",
+              "name": "Category",
+              "value": "={{ $json.Category }}",
+              "type": "string"
+            },
+            {
+              "id": "4b650803-e96a-4249-a792-5313004535c6",
+              "name": "Priority",
+              "value": "={{ $json.Priority }}",
+              "type": "string"
+            },
+            {
+              "id": "51d550bd-c4f0-41d8-8411-57e0b28c87df",
+              "name": "Ticket_ID",
+              "value": "={{ $json.Ticket_ID }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        1376,
+        -160
+      ],
+      "id": "461a6ecb-987f-4521-a19b-1078faeb0968",
+      "name": "Assign Technical Team"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0c910708-c9b5-4709-83aa-82aff7ba16b6",
+              "name": "Assigned_Team",
+              "value": "Billing Team",
+              "type": "string"
+            },
+            {
+              "id": "9d6c9852-6390-4719-a0be-a6561a83fbcb",
+              "name": "Team_Email",
+              "value": "billing@company.com",
+              "type": "string"
+            },
+            {
+              "id": "a8cf8706-2258-4b8a-9282-7d8d61b1c5ef",
+              "name": "Category",
+              "value": "={{ $json.Category }}",
+              "type": "string"
+            },
+            {
+              "id": "d3789bc0-3979-42b0-952b-4556656cf23b",
+              "name": "Priority",
+              "value": "={{ $json.Priority }}",
+              "type": "string"
+            },
+            {
+              "id": "e25e1aad-93de-436e-9fe6-66d2437f15d5",
+              "name": "Ticket_ID",
+              "value": "={{ $json.Ticket_ID }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        1376,
+        0
+      ],
+      "id": "a5e63d2c-a390-47f1-bc4a-04323f20aee7",
+      "name": "Assign Billing Team"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "df49dfb9-9143-44da-84f0-f3f2bd87803e",
+              "name": "Assigned_Team",
+              "value": "Customer Support",
+              "type": "string"
+            },
+            {
+              "id": "74fec37b-863a-46e1-9b3d-964cb6e7ab10",
+              "name": "Team_Email",
+              "value": "support@company.com",
+              "type": "string"
+            },
+            {
+              "id": "dd561743-8f4a-49d9-a0d1-f82e2bdb0d91",
+              "name": "Category",
+              "value": "={{ $json.Category }}",
+              "type": "string"
+            },
+            {
+              "id": "789ad9c9-245f-4323-ba70-0eaf109a7320",
+              "name": "Ticket_ID",
+              "value": "={{ $json.Ticket_ID }}",
+              "type": "string"
+            },
+            {
+              "id": "7d600e42-6f37-43b2-a760-020134658f82",
+              "name": "Priority",
+              "value": "={{ $json.Priority }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        1376,
+        160
+      ],
+      "id": "553fd6e0-685a-42c6-a2cb-51f4a1e7ed59",
+      "name": "Assign General Team"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1wY2OiF1HxsryG98634-rmV5aYapA7mZoo9O8Cq5ACLs",
+          "mode": "list",
+          "cachedResultName": "AI Customer Support Tickets",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1wY2OiF1HxsryG98634-rmV5aYapA7mZoo9O8Cq5ACLs/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1wY2OiF1HxsryG98634-rmV5aYapA7mZoo9O8Cq5ACLs/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Ticket_ID": "={{ $json.Ticket_ID }}",
+            "Assigned_Team": "={{ $json.Assigned_Team }}",
+            "Team_Email": "={{ $json.Team_Email }}",
+            "Updated_At": "={{ $now.format('yyyy-MM-dd') }}",
+            "Priority": "={{ $json.Priority }}"
+          },
+          "matchingColumns": [
+            "Ticket_ID"
+          ],
+          "schema": [
+            {
+              "id": "Ticket_ID",
+              "displayName": "Ticket_ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Created_At",
+              "displayName": "Created_At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Customer_Name",
+              "displayName": "Customer_Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Customer_Email",
+              "displayName": "Customer_Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Subject",
+              "displayName": "Subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Issue",
+              "displayName": "Issue",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Sentiment",
+              "displayName": "Sentiment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "confidence",
+              "displayName": "confidence",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Priority",
+              "displayName": "Priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Assigned_Team",
+              "displayName": "Assigned_Team",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Team_Email",
+              "displayName": "Team_Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Manager_Notified",
+              "displayName": "Manager_Notified",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Updated_At",
+              "displayName": "Updated_At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1616,
+        0
+      ],
+      "id": "2d8d48b1-51d2-480d-81d1-61c6b489d026",
+      "name": "Update row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "o10OGF3i2mV3urzQ",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.Priority }}",
+                    "rightValue": "Urgent",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "d7ef7640-400d-44a5-9453-1b51b970fdb8"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Urgent"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "75e28aca-1a30-4520-98b8-e73f5ea801d4",
+                    "leftValue": "={{ $json.Priority }}",
+                    "rightValue": "Normal",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Normal"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        1840,
+        0
+      ],
+      "id": "6abf1ab2-df60-4840-a74b-2069d8c425c7",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "sendTo": "=purposework686@gmail.com",
+        "subject": "=🚨 High Priority Support Ticket - {{$('Generate Ticket ID').item.json.ticket_id}}",
+        "emailType": "text",
+        "message": "=A high-priority customer support ticket requires attention.  Ticket ID: {{$('Generate Ticket ID').item.json.ticket_id}}  Customer: {{ $('Extract Customer Data').item.json['customer_name '] }} Email:{{ $('Extract Customer Data').item.json.customer_email }}   Subject: {{ $('Extract Customer Data').item.json.subject }}  Category: {{$('AI Ticket Analysis').item.json.output.category}}  Priority: {{$('AI Ticket Analysis').item.json.output.priority}}  Sentiment: {{$('AI Ticket Analysis').item.json.output.sentiment}}  Summary: {{$('AI Ticket Analysis').item.json.output.summary}}  Assigned Team: {{ $json.Assigned_Team }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2064,
+        -128
+      ],
+      "id": "624876d7-ee20-4199-936d-d0fb67ca6363",
+      "name": "Send a message",
+      "webhookId": "9a5949b6-b85c-4952-9f05-5ab311971fde",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "7fKllvlXd4YeeeoO",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "workspace": "1217179342419980",
+        "name": "=URGENT - {{$('Generate Ticket ID').item.json.ticket_id}} - {{$('Extract Customer Data').item.json.subject}}",
+        "otherProperties": {
+          "assignee": "1217179342419968",
+          "due_on": "={{ $now.plus({ days: 1 }).toFormat('yyyy-MM-dd') }}",
+          "notes": "=Customer Support Escalation\n\nTicket ID:\n{{$('Generate Ticket ID').item.json.ticket_id}}\n\nCustomer:\n{{ $('Extract Customer Data').item.json['customer_name '] }}\n\nCustomer Email:\n{{$('Extract Customer Data').item.json.customer_email}}\n\nSubject:\n{{$('Extract Customer Data').item.json.subject}}\n\nIssue:\n{{$('Extract Customer Data').item.json.issue}}\n\nCategory:\n{{$('AI Ticket Analysis').item.json.output.category}}\n\nPriority:\n{{$('AI Ticket Analysis').item.json.output.priority}}\n\nSentiment:\n{{$('AI Ticket Analysis').item.json.output.sentiment}}\n\nAI Summary:\n{{$('AI Ticket Analysis').item.json.output.summary}}\n\nThis task was automatically created because the support ticket was classified as urgent.",
+          "projects": [
+            "1217356891630928"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.asana",
+      "typeVersion": 1,
+      "position": [
+        2288,
+        -128
+      ],
+      "id": "c55ef0b8-25a2-4291-8380-0546c30f6a41",
+      "name": "Create a task",
+      "credentials": {
+        "asanaOAuth2Api": {
+          "id": "NE85rsqMUC1gzTfE",
+          "name": "Asana account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "move",
+        "id": "={{ $json.gid }}",
+        "projectId": "1217356891630928",
+        "section": "1217356891630931"
+      },
+      "type": "n8n-nodes-base.asana",
+      "typeVersion": 1,
+      "position": [
+        2512,
+        -128
+      ],
+      "id": "afd68494-aa37-4aac-9c02-0b880fa8acf4",
+      "name": "Move a task",
+      "credentials": {
+        "asanaOAuth2Api": {
+          "id": "NE85rsqMUC1gzTfE",
+          "name": "Asana account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1wY2OiF1HxsryG98634-rmV5aYapA7mZoo9O8Cq5ACLs",
+          "mode": "list",
+          "cachedResultName": "AI Customer Support Tickets",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1wY2OiF1HxsryG98634-rmV5aYapA7mZoo9O8Cq5ACLs/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1wY2OiF1HxsryG98634-rmV5aYapA7mZoo9O8Cq5ACLs/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Ticket_ID": "={{ $('Update row in sheet').item.json.Ticket_ID }}",
+            "task id ": "={{ $('Create a task').item.json.gid }}",
+            "Updated_At": "={{ $now.format('yyyy-MM-dd') }}",
+            "Manager_Notified": "yes",
+            "Status": "Escalated"
+          },
+          "matchingColumns": [
+            "Ticket_ID"
+          ],
+          "schema": [
+            {
+              "id": "Ticket_ID",
+              "displayName": "Ticket_ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Created_At",
+              "displayName": "Created_At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer_Name",
+              "displayName": "Customer_Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer_Email",
+              "displayName": "Customer_Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Subject",
+              "displayName": "Subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Issue",
+              "displayName": "Issue",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Sentiment",
+              "displayName": "Sentiment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "confidence",
+              "displayName": "confidence",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Priority",
+              "displayName": "Priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Assigned_Team",
+              "displayName": "Assigned_Team",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Team_Email",
+              "displayName": "Team_Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Manager_Notified",
+              "displayName": "Manager_Notified",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "task id ",
+              "displayName": "task id ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Updated_At",
+              "displayName": "Updated_At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2688,
+        -128
+      ],
+      "id": "73fdb273-7427-4efd-ad53-3cc8056ed599",
+      "name": "Update row in sheet2",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "o10OGF3i2mV3urzQ",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a professional customer support representative.\n\nWrite a concise and helpful response to the customer.\n\nCustomer name:\n{{ $('Extract Customer Data').item.json['customer_name '] }}\n\nIssue:\n{{ $('Extract Customer Data').item.json.issue }}\n\nCategory:\n{{ $('AI Ticket Analysis').item.json.output.category }}\n\nSummary:\n{{ $('AI Ticket Analysis').item.json.output.summary }}\n\nRules:\n- Be professional.\n- Be polite.\n- Do not invent policies or information.\n- Do not promise a specific resolution unless provided.\n- Keep the response under 120 words.\n- If the issue requires a support team, explain that the request has been forwarded.",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        2064,
+        96
+      ],
+      "id": "cb1cd358-7548-446c-8525-56cb3ed3a7b7",
+      "name": "AI Agent",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "model": "llama-3.1-8b-instant",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        2064,
+        256
+      ],
+      "id": "a864f12b-8ea3-42d1-bbac-fea8064e056e",
+      "name": "Groq Chat Model1",
+      "credentials": {
+        "groqApi": {
+          "id": "A434aarOdeb4O3nU",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"subject\": \"Support Update - Your Ticket\",\n  \"response\": \"Professional response to the customer based on their issue and analysis.\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        2208,
+        256
+      ],
+      "id": "6f597e77-827a-4740-8880-10522532a662",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Extract Customer Data').item.json.customer_email }}",
+        "subject": "={{ $json.output.subject }}",
+        "emailType": "text",
+        "message": "={{ $json.output.response }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2432,
+        96
+      ],
+      "id": "c3e34840-89cf-427b-809f-b3ee09f865f5",
+      "name": "Send a message1",
+      "webhookId": "9111d707-627d-43cf-8ebc-7b3e60d0a603",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "7fKllvlXd4YeeeoO",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1wY2OiF1HxsryG98634-rmV5aYapA7mZoo9O8Cq5ACLs",
+          "mode": "list",
+          "cachedResultName": "AI Customer Support Tickets",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1wY2OiF1HxsryG98634-rmV5aYapA7mZoo9O8Cq5ACLs/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1wY2OiF1HxsryG98634-rmV5aYapA7mZoo9O8Cq5ACLs/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Ticket_ID": "={{ $('Generate Ticket ID').item.json.ticket_id }}",
+            "Status": "IN progress",
+            "Manager_Notified": "yes",
+            "Updated_At": "={{ $now.format('yyyy-MM-dd') }}"
+          },
+          "matchingColumns": [
+            "Ticket_ID"
+          ],
+          "schema": [
+            {
+              "id": "Ticket_ID",
+              "displayName": "Ticket_ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Created_At",
+              "displayName": "Created_At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer_Name",
+              "displayName": "Customer_Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer_Email",
+              "displayName": "Customer_Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Subject",
+              "displayName": "Subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Issue",
+              "displayName": "Issue",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Sentiment",
+              "displayName": "Sentiment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "confidence",
+              "displayName": "confidence",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Priority",
+              "displayName": "Priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Assigned_Team",
+              "displayName": "Assigned_Team",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Team_Email",
+              "displayName": "Team_Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Manager_Notified",
+              "displayName": "Manager_Notified",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "task id ",
+              "displayName": "task id ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Updated_At",
+              "displayName": "Updated_At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2880,
+        96
+      ],
+      "id": "7e067051-6ece-4fd1-b81c-234d7824cac3",
+      "name": "Update row in sheet3",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "o10OGF3i2mV3urzQ",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0BNY24U0BA",
+          "mode": "list",
+          "cachedResultName": "all-automation-task"
+        },
+        "text": "=Hi {{ $('Extract Customer Data').item.json['customer_name '] }} id:{{ $('Generate Ticket ID').item.json.ticket_id }} apply {{ $('Extract Customer Data').item.json.subject }} regarding issue  {{ $('Extract Customer Data').item.json.issue }} reffered to {{ $('AI Ticket Analysis').item.json.output.category }} with prority {{ $('AI Ticket Analysis').item.json.output.priority }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        2656,
+        96
+      ],
+      "id": "b59cfa11-6e96-408b-9b77-ab7d59d7fe5c",
+      "name": "Send a message3",
+      "webhookId": "fce48a48-536a-4086-80ed-20489dd4fd4c",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "StAWCKDhKZerOLu9",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Extract Customer Data').item.json.customer_email }}",
+        "subject": "=Urgent Support Request - {{ $('Generate Ticket ID').item.json.ticket_id }}",
+        "emailType": "text",
+        "message": "=Hello {{ $('Extract Customer Data').item.json['customer_name '] }},  Thank you for contacting our support team.  We understand that you are experiencing an urgent issue with your account. Your request has been escalated to our support team for immediate attention, and we have started working on it.  Your ticket ID is: {{ $('Generate Ticket ID').item.json.ticket_id }}  Our team will review the issue and work toward resolving it as soon as possible. We will keep you updated on the progress.  Thank you for your patience.  Best regards, Customer Support Team",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2912,
+        -128
+      ],
+      "id": "4c12617d-1784-4800-98a8-c3db92753e2e",
+      "name": "Send a message2",
+      "webhookId": "523c3e6f-4e79-4a2b-973e-c1dd341de86a",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "7fKllvlXd4YeeeoO",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Customer Support": {
+      "main": [
+        [
+          {
+            "node": "Extract Customer Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Customer Data": {
+      "main": [
+        [
+          {
+            "node": "Generate Ticket ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Ticket ID": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "AI Ticket Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Ticket Analysis",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Ticket Analysis",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Ticket Analysis": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Route Ticket by Category",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Ticket by Category": {
+      "main": [
+        [
+          {
+            "node": "Assign Technical Team",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Assign Billing Team",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Assign General Team",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assign Technical Team": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assign Billing Team": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assign General Team": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Create a task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a task": {
+      "main": [
+        [
+          {
+            "node": "Move a task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Move a task": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet2": {
+      "main": [
+        [
+          {
+            "node": "Send a message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message1": {
+      "main": [
+        [
+          {
+            "node": "Send a message3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message3": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "1cbe1fe9-ee2b-4a8a-86a5-14f39898327f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3e9bc5f31543b38f3f3e621629a57de9364a6484f5dca267a394baeed0e6ebe5"
+  },
+  "nodeGroups": [],
+  "id": "yJscHPQOhhgaEVlq",
+  "tags": []
+}
