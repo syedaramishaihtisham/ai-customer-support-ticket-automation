@@ -1,12 +1,12 @@
 # 🤖 AI Customer Support & Ticket Resolution System
 
-An AI-powered customer support automation system built with **n8n** that automatically receives customer support emails, extracts ticket information, analyzes customer issues using AI, categorizes and routes tickets to the appropriate team, handles urgent ticket escalation, creates tasks, sends internal notifications, and communicates with customers.
+An AI-powered customer support automation system built with **n8n** that automatically receives customer support emails, extracts customer information, generates support tickets, analyzes issues using AI, categorizes and routes tickets to the appropriate team, handles urgent ticket escalation, creates tasks, sends internal notifications, and communicates with customers.
 
 ---
 
 ## 📌 About the Project
 
-Customer support teams often spend a significant amount of time manually reviewing customer emails, creating tickets, categorizing issues, assigning tickets to the appropriate team, identifying urgent requests, notifying managers, creating tasks, and responding to customers.
+Customer support teams often spend significant time manually reviewing customer emails, creating tickets, categorizing issues, assigning tickets to the appropriate team, identifying urgent requests, notifying managers, creating tasks, and responding to customers.
 
 This project automates the complete customer support ticket handling process using **n8n, AI, Gmail, Google Sheets, Asana, and Slack**.
 
@@ -20,7 +20,7 @@ Manual customer support processes can lead to:
 
 - Time-consuming ticket creation
 - Manual issue categorization
-- Delays in assigning tickets to teams
+- Delays in assigning tickets to the appropriate team
 - Difficulty identifying urgent issues
 - Repetitive manager notifications
 - Manual task creation
@@ -41,15 +41,16 @@ The system automates the customer support process by:
 4. Storing the ticket in Google Sheets.
 5. Analyzing the ticket using AI.
 6. Categorizing the customer issue.
-7. Routing the ticket to the appropriate team.
+7. Routing the ticket to the appropriate support team.
 8. Updating the ticket information.
-9. Handling urgent tickets through a dedicated escalation path.
-10. Sending an email notification to the manager.
-11. Creating an Asana task for urgent tickets.
-12. Moving the Asana task through the workflow.
-13. Sending internal Slack notifications.
-14. Sending an automated response to the customer.
-15. Updating the ticket record in Google Sheets.
+9. Checking the ticket priority.
+10. Handling urgent tickets through a dedicated escalation path.
+11. Sending an email notification to the manager.
+12. Creating an Asana task for urgent tickets.
+13. Moving the Asana task through the workflow.
+14. Sending internal Slack notifications.
+15. Sending an automated response to the customer.
+16. Updating the ticket record in Google Sheets.
 
 ---
 
@@ -62,7 +63,7 @@ Extract Customer Data
         ↓
 Generate Ticket ID
         ↓
-Append Ticket to Google Sheets
+Append Row to Google Sheets
         ↓
 AI Ticket Analysis
         ↓
@@ -111,7 +112,7 @@ Generates a unique ticket ID for every customer support request, allowing each t
 
 ### 🤖 AI Ticket Analysis
 
-Uses an AI model to analyze the customer's support request and generate structured ticket information for further processing.
+Uses an AI model to analyze the customer's support request and generate structured information for further processing.
 
 ### 🏷️ Ticket Categorization
 
@@ -139,7 +140,7 @@ Urgent tickets follow a dedicated escalation process that includes:
 
 ### 📊 Google Sheets Ticket Tracking
 
-Google Sheets is used to store and track ticket information throughout the workflow.
+Google Sheets is used to store and track customer support ticket information throughout the workflow.
 
 ### 📌 Asana Task Management
 
@@ -197,7 +198,8 @@ The analysis helps determine information such as:
 - Issue category
 - Ticket priority
 - Issue summary
-- Relevant ticket information
+- Sentiment
+- Confidence
 - Appropriate team routing
 
 The structured AI output is then passed to the following workflow steps for automated processing.
@@ -226,9 +228,11 @@ This reduces the need for manual ticket sorting and team assignment.
 
 ---
 
-## 🚨 Urgent Ticket Escalation
+## 🚨 Priority & Escalation Handling
 
-When a ticket requires urgent attention, it follows a separate escalation path.
+The workflow checks the ticket priority after the category and team assignment process.
+
+Urgent tickets follow a dedicated escalation path:
 
 ```text
 Urgent Ticket
@@ -244,24 +248,30 @@ Update Google Sheets
 Customer Notification
 ```
 
-This ensures that urgent customer issues are escalated and tracked properly.
+Normal tickets follow the regular customer support response process.
 
 ---
 
 ## 📋 Ticket Tracking
 
-Google Sheets is used as the central ticket tracking system.
+Google Sheets acts as the central ticket tracking system.
 
-Example ticket information includes:
+The ticket records contain information such as:
 
 ```text
 Ticket ID
+Created At
 Customer Name
 Customer Email
+Subject
 Issue
 Category
+Summary
+Sentiment
+Confidence
 Priority
 Assigned Team
+Team Email
 Status
 ```
 
@@ -273,15 +283,15 @@ The ticket record is updated as the request moves through different stages of th
 
 Slack is used for internal communication and keeps the support team informed about relevant ticket activity.
 
-For urgent issues, the manager is also notified through email so that escalation can happen immediately.
+For urgent issues, the manager is also notified through email so the issue can be escalated and handled appropriately.
 
 ---
 
 ## 📧 Customer Communication
 
-The workflow automatically communicates with the customer after processing their support request.
+The workflow automatically communicates with customers after processing their support request.
 
-This reduces the need for support staff to manually send routine updates and helps maintain timely communication.
+This reduces the need for support staff to manually send routine updates and helps maintain timely customer communication.
 
 ---
 
@@ -291,21 +301,21 @@ This reduces the need for support staff to manually send routine updates and hel
 
 ![Complete Workflow](screenshots/workflow.png)
 
-The complete n8n automation showing customer email processing, ticket generation, AI analysis, category routing, team assignment, escalation, task management, and notifications.
+The complete n8n automation showing customer email processing, ticket generation, AI analysis, category routing, team assignment, priority handling, escalation, task management, and notifications.
 
 ---
 
 ### 📊 Google Sheets — Ticket Tracking
 
-![Google Sheets](screenshots/google-sheets.png)
+![Google Sheets](screenshots/google_sheets.png)
 
-Google Sheets is used to store and update customer support ticket information throughout the workflow.
+Google Sheets stores and tracks customer support ticket information, including ticket ID, customer details, issue, category, summary, sentiment, confidence, priority, assigned team, and team email.
 
 ---
 
 ### 📌 Asana — Urgent Ticket Task
 
-![Asana Task](screenshots/asana-task.png)
+![Asana Task](screenshots/asana_task.png)
 
 Urgent customer support issues are automatically converted into Asana tasks for tracking and management.
 
@@ -313,7 +323,7 @@ Urgent customer support issues are automatically converted into Asana tasks for 
 
 ### 💬 Slack — Internal Notification
 
-![Slack Notification](screenshots/slack-notification.png)
+![Slack Notification](screenshots/slack_notification.png)
 
 Slack is used to notify the internal support team about customer support activity.
 
@@ -321,7 +331,7 @@ Slack is used to notify the internal support team about customer support activit
 
 ### 📧 Manager Notification
 
-![Manager Email](screenshots/manager-email.png)
+![Manager Email](screenshots/manager_email.png)
 
 The manager receives an automated email when an urgent customer support issue requires escalation.
 
@@ -329,7 +339,7 @@ The manager receives an automated email when an urgent customer support issue re
 
 ### 📩 Customer Email
 
-![Customer Email](screenshots/customer-email.png)
+![Customer Email](screenshots/customer_email.png)
 
 The customer receives an automated response or update after the support request is processed.
 
@@ -338,20 +348,19 @@ The customer receives an automated response or update after the support request 
 ## 📁 Project Structure
 
 ```text
-AI-Customer-Support-Ticket-Resolution/
+AI-Customer-Support-Ticket-Automation/
 │
 ├── README.md
-│
-├── workflow/
-│   └── AI_Customer_Support_Ticket_Resolution.json
+├── LICENSE
+├── workflow.json
 │
 └── screenshots/
     ├── workflow.png
-    ├── google-sheets.png
-    ├── slack-notification.png
-    ├── asana-task.png
-    ├── manager-email.png
-    └── customer-email.png
+    ├── google_sheets.png
+    ├── slack_notification.png
+    ├── asana_task.png
+    ├── manager_email.png
+    └── customer_email.png
 ```
 
 ---
@@ -360,10 +369,10 @@ AI-Customer-Support-Ticket-Resolution/
 
 ### 1. Import the Workflow
 
-Import the workflow JSON file into your n8n instance.
+Download or clone this repository and import the following workflow file into your n8n instance:
 
 ```text
-workflow/AI_Customer_Support_Ticket_Resolution.json
+workflow.json
 ```
 
 ### 2. Configure Credentials
@@ -384,12 +393,18 @@ Example columns:
 
 ```text
 Ticket ID
+Created At
 Customer Name
 Customer Email
+Subject
 Issue
 Category
+Summary
+Sentiment
+Confidence
 Priority
 Assigned Team
+Team Email
 Status
 ```
 
@@ -442,6 +457,7 @@ This automation helps customer support teams by:
 - Maintaining centralized ticket records
 - Automating customer communication
 - Improving ticket tracking
+- Providing structured AI-based ticket analysis
 
 ---
 
@@ -457,12 +473,13 @@ Possible future improvements include:
 - Advanced ticket history
 - Human approval for sensitive customer responses
 - Automated resolution tracking
+- Customer feedback collection
 
 ---
 
 ## 🎯 Use Case
 
-This system can be used by organizations that receive customer support requests through email and want to automate the complete ticket handling process:
+This system can be used by organizations that receive customer support requests through email and want to automate the complete ticket handling process.
 
 ```text
 Customer Request
@@ -490,9 +507,9 @@ Ticket Tracking
 
 ## 🔐 Security Note
 
-The workflow JSON included in this repository does not contain sensitive credentials.
+The workflow JSON included in this repository should not contain sensitive credentials.
 
-Before sharing the workflow publicly, make sure that:
+Before making the repository public, make sure that:
 
 - API keys are not included
 - OAuth tokens are not included
@@ -518,5 +535,6 @@ Credentials should be configured separately inside n8n.
 
 This project demonstrates how **AI and workflow automation can be combined with business applications** to create an end-to-end customer support ticket resolution system.
 
-It automates the process from **customer request → ticket creation → AI analysis → categorization → team assignment → urgent escalation → task management → notifications → customer communication**.
+It automates the process from:
 
+**Customer Request → Ticket Creation → AI Analysis → Categorization → Team Assignment → Priority Handling → Urgent Escalation → Task Management → Notifications → Customer Communication → Ticket Tracking**
